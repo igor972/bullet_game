@@ -10,11 +10,11 @@ class Game
 	end
 
 	def update
-		if @window.button_down? Gosu::KbUp
+		if @window.button_down? Gosu::KbUp and @letter_y >= 0
 			@letter_y -= 8	
 		end
 
-		if @window.button_down? Gosu::KbDown
+		if @window.button_down? Gosu::KbDown and @letter_y <= 500
 			@letter_y += 8
 		end
 	end
