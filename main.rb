@@ -13,15 +13,22 @@ class Game
 
 	def update
 		@player.update
-
 		@enemy.update
 
 		if @window.button_down?(Gosu::KbSpace)
 			@bullets.push(Bullet.new(self, 0, @player.y))
 		end
 
-		# update bullet and remove from array 'dead bullets'
-		@bullets.each {|bullet| if bullet.live == true then bullet.update else @bullets.delete(bullet) end}
+		@bullets.each do |bullet|
+			if bullet.live
+				bullet.update
+				if bullet.x == @enemy.x
+					@enemy.hited!
+				end
+			else
+				@bullets.delete(bullet)
+			end
+		end
 	end
 
 	def draw
@@ -30,9 +37,35 @@ class Game
 
 		@enemy.draw
 	end
+
 end
 
-class Player
+
+class ObjectOnWindow
+
+	# x1/y1 ________ x2/y2
+	#      |        |
+	#      |        |
+	# x3/y3|________|x4/y4
+
+	def where_am_i
+		x1 = @image.width/2 - @x
+		x2 = @image.width/2 + @x
+		x3 = @image.width/2 - @x
+		x4 = @image.width/2 + @x
+		
+		y1 = @image.height/2 - @y
+		y2 = @image.height/2 + @y
+		y3 = @image.height/2 + @y
+		y4 = @image.height/2 - @y
+
+		return x1, x2, x3, x4, y1, y2, y3, y4
+	end
+
+end
+
+
+class Player < ObjectOnWindow
 	attr_accessor :x, :y, :game
 
 	def initialize game
@@ -45,7 +78,7 @@ class Player
 
 	def update
 		@y += 10 if @game.window.button_down? Gosu::KbDown and @y <= @game.window.height - @image.height
-		@y -= 10 if @game.window.button_down? Gosu::KbUp and @y >= 0
+		@y -= 10 if @game.window.button_down? Gosu::KbUp and @y > 0
 	end
 
 	def draw
@@ -77,8 +110,8 @@ class Bullet
 	end
 end
 
-class Enemy
-	attr_accessor :x, :y, :game
+class Enemy < ObjectOnWindow
+	attr_accessor :x, :y, :game, :live
 
 	def initialize game
 		@game = game
@@ -87,13 +120,25 @@ class Enemy
 		
 		@x = @game.window.width
 		@y = Random.new.rand(0..(@game.window.height - @image.height))
+
+		@live = true
 	end
 	
 	def update
+		if @x > 0 and @live == true
+			@x -= 1
+		else
+			@live = false
+		end
 	end
 
 	def draw
 		@image.draw @x, @y, 0, -1
+	end
+
+	def hited!
+		puts "Hited!!!"
+		@live = false
 	end
 
 end
