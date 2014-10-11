@@ -7,10 +7,14 @@ class Game
 		@window = window
 		@player = Player.new self
 		@bullets = []
+
+		@enemy = Enemy.new self
 	end
 
 	def update
 		@player.update
+
+		@enemy.update
 
 		if @window.button_down?(Gosu::KbSpace)
 			@bullets.push(Bullet.new(self, 0, @player.y))
@@ -23,6 +27,8 @@ class Game
 	def draw
 		@player.draw
 		@bullets.each {|bullet| bullet.draw}
+
+		@enemy.draw
 	end
 end
 
@@ -69,6 +75,27 @@ class Bullet
 	def draw
 		@image.draw @x, @y, 0 unless @live == false
 	end
+end
+
+class Enemy
+	attr_accessor :x, :y, :game
+
+	def initialize game
+		@game = game
+		
+		@image = Gosu::Image.from_text @game.window, "Y", Gosu.default_font_name, 50
+		
+		@x = @game.window.width
+		@y = Random.new.rand(0..(@game.window.height - @image.height))
+	end
+	
+	def update
+	end
+
+	def draw
+		@image.draw @x, @y, 0, -1
+	end
+
 end
 
 class Window < Gosu::Window
