@@ -8,17 +8,28 @@ class Game
 		@player = Player.new self
 		@bullets = []
 
-		@enemy = Enemy.new self
+		
+		@enemies = []
 		@music = Gosu::Song.new(@window, "bullet_game_1.mp3").play(true)
 	end
 
 	def update
 		@player.update
-		@enemy.update
+		@enemies.each {|enemy| enemy.update}
 
-		if Gosu.distance(@player.x, @player.y, @enemy.x, @enemy.y) <= 30 and @player.alive == true
-			@player.die!
-			@game_over = Gosu::Image.from_text @window, "GAME OVER", Gosu.default_font_name, 200
+		# generate some enemies
+		if Gosu.milliseconds % 25 == 0
+			@enemies.push(Enemy.new(self))
+		end
+
+		@enemies.each do |enemy|
+			if Gosu.distance(@player.x, @player.y, enemy.x, enemy.y) <= 30 and @player.alive == true
+				@player.die!
+				@game_over = Gosu::Image.from_text @window, "GAME OVER", Gosu.default_font_name, 200
+			end
+
+			# remove dead enemies
+			@enemies.delete(enemy) if enemy.alive == false
 		end
 
 		if @window.button_down?(Gosu::KbSpace)
@@ -28,22 +39,22 @@ class Game
 		@bullets.each do |bullet|
 			if bullet.live
 				bullet.update
-				if bullet.x == @enemy.x
-					@enemy.hited!
-				end
+
+				@enemies.each {|enemy| if bullet.x == enemy.x then enemy.hited!end}
 			else
 				@bullets.delete(bullet)
 			end
 		end
+
 	end
 
 	def draw
 		@player.draw
 		@bullets.each {|bullet| bullet.draw}
 
-		@enemy.draw
-
 		@game_over.draw 0,0,0 unless @player.alive
+
+		@enemies.each {|enemy| enemy.draw}
 	end
 
 end
@@ -68,8 +79,8 @@ class Player < ObjectOnWindow
 	end
 
 	def update
-		@y += 2 if @game.window.button_down? Gosu::KbDown and @y <= @game.window.height - @image.height
-		@y -= 2 if @game.window.button_down? Gosu::KbUp and @y > 0
+		@y += 10 if @game.window.button_down? Gosu::KbDown and @y <= @game.window.height - @image.height
+		@y -= 10 if @game.window.button_down? Gosu::KbUp and @y > 0
 	end
 
 	def draw
@@ -107,7 +118,7 @@ class Bullet < ObjectOnWindow
 end
 
 class Enemy < ObjectOnWindow
-	attr_accessor :x, :y, :game, :live
+	attr_accessor :x, :y, :game, :alive
 
 	def initialize game
 		@game = game
@@ -117,14 +128,14 @@ class Enemy < ObjectOnWindow
 		@x = @game.window.width
 		@y = Random.new.rand(0..(@game.window.height - @image.height))
 
-		@live = true
+		@alive = true
 	end
 	
 	def update
-		if @x > 0 and @live == true
+		if @x > 0 and @alive == true
 			@x -= 10
 		else
-			@live = false
+			@alive = false
 		end
 	end
 
@@ -133,7 +144,7 @@ class Enemy < ObjectOnWindow
 	end
 
 	def hited!
-		@live = false
+		@alive = false
 	end
 
 end
