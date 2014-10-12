@@ -74,8 +74,6 @@ class Player < ObjectOnWindow
 		@y = (@game.window.height/2 - @image.height/2) + 10
 
 		@alive = true
-
-		@sample = Gosu::Sample.new(@game.window, "you_lose_bitch.mp3")
 	end
 
 	def update
@@ -89,7 +87,8 @@ class Player < ObjectOnWindow
 
 	def die!
 		@alive = false
-		@sample.play
+		Gosu::Sample.new(@game.window, "player_die.wav").play
+		Gosu::Sample.new(@game.window, "you_lose_bitch.mp3").play
 	end
 end
 
@@ -102,7 +101,7 @@ class Bullet < ObjectOnWindow
 		@x = x
 		@y = y
 		@alive = true
-		@sample = Gosu::Sample.new(@game.window, "bullet.mp3").play
+		Gosu::Sample.new(@game.window, "bullet.mp3").play
 	end
 
 	def update
@@ -146,6 +145,7 @@ class Enemy < ObjectOnWindow
 
 	def hited!
 		@alive = false
+		Gosu::Sample.new(@game.window, "enemy_die_1.mp3").play
 	end
 
 end
