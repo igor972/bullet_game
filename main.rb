@@ -28,19 +28,19 @@ class Game
 				@game_over = Gosu::Image.from_text @window, "GAME OVER", Gosu.default_font_name, 200
 			end
 
-			# remove dead enemies
+			# delete dead enemies
 			@enemies.delete(enemy) if enemy.alive == false
 		end
 
-		if @window.button_down?(Gosu::KbSpace)
+		if @window.button_down?(Gosu::KbSpace) and @player.alive == true
 			@bullets.push(Bullet.new(self, 0, @player.y))
 		end
 
 		@bullets.each do |bullet|
-			if bullet.live
+			if bullet.alive
 				bullet.update
 
-				@enemies.each {|enemy| if bullet.x == enemy.x then enemy.hited!end}
+				@enemies.each {|enemy| if Gosu.distance(enemy.x, enemy.y, bullet.x, bullet.y) <= 30 then enemy.hited! end}
 			else
 				@bullets.delete(bullet)
 			end
@@ -94,26 +94,26 @@ class Player < ObjectOnWindow
 end
 
 class Bullet < ObjectOnWindow
-	attr_accessor :x, :y, :game, :live
+	attr_accessor :x, :y, :game, :alive
 
 	def initialize game, x, y
 		@game = game
 		@image = Gosu::Image.from_text @game.window, ">", Gosu.default_font_name, 30
 		@x = x
 		@y = y
-		@live = true
+		@alive = true
 	end
 
 	def update
-		if @x <= (@game.window.width - 20) and @live == true
+		if @x <= (@game.window.width - 20) and @alive == true
 			@x += 10 
 		else
-			@live = false
+			@alive = false
 		end
 	end
 
 	def draw
-		@image.draw @x, @y, 0 unless @live == false
+		@image.draw @x, @y, 0 unless @alive == false
 	end
 end
 
