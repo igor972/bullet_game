@@ -120,7 +120,7 @@ class Bullet < ObjectOnWindow
 
 	def update
 		if @x <= (@game.window.width - 20) and @alive == true
-			@x += 10 
+			@x += 20 
 		else
 			@alive = false
 		end
@@ -137,8 +137,9 @@ class Enemy < ObjectOnWindow
 	def initialize game
 		@game = game
 		
-		@image = Gosu::Image.from_text @game.window, "H", Gosu.default_font_name, 50
-		
+		# @image = Gosu::Image.from_text @game.window, "H", Gosu.default_font_name, 50
+		@image = Gosu::Image.new(@game.window, "asteroid.png", false)
+
 		@x = @game.window.width
 		@y = Random.new.rand(0..(@game.window.height - @image.height))
 
