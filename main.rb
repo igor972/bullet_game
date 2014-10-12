@@ -11,11 +11,14 @@ class Game
 		
 		@enemies = []
 		@music = Gosu::Song.new(@window, "bullet_game_1.mp3").play(true)
+
+		@score = Score.new(self)
 	end
 
 	def update
 		@player.update
 		@enemies.each {|enemy| enemy.update}
+		@score.update
 
 		# generate some enemies
 		if Gosu.milliseconds % 25 == 0
@@ -26,6 +29,9 @@ class Game
 			if Gosu.distance(@player.x, @player.y, enemy.x, enemy.y) <= 30 and @player.alive == true
 				@player.die!
 				@game_over = Gosu::Image.from_text @window, "GAME OVER", Gosu.default_font_name, 200
+				@score.x = @window.width/2 - 150
+				@score.y = 300
+				@score.font_size = 100
 			end
 
 			# delete dead enemies
@@ -40,7 +46,12 @@ class Game
 			if bullet.alive
 				bullet.update
 
-				@enemies.each {|enemy| if Gosu.distance(enemy.x, enemy.y, bullet.x, bullet.y) <= 30 then enemy.hited! end}
+				@enemies.each do |enemy|
+					if Gosu.distance(enemy.x, enemy.y, bullet.x, bullet.y) <= 30
+						enemy.hited!
+						@score.deaths += 1
+					end
+				end
 			else
 				@bullets.delete(bullet)
 			end
@@ -51,8 +62,9 @@ class Game
 	def draw
 		@player.draw
 		@bullets.each {|bullet| bullet.draw}
+		@score.draw
 
-		@game_over.draw 0,0,0 unless @player.alive
+		@game_over.draw 40, 0,0 unless @player.alive
 
 		@enemies.each {|enemy| enemy.draw}
 	end
@@ -146,6 +158,31 @@ class Enemy < ObjectOnWindow
 	def hited!
 		@alive = false
 		Gosu::Sample.new(@game.window, "enemy_die_1.mp3").play
+	end
+
+end
+
+class Score
+	attr_accessor :deaths, :x, :y, :font_size
+	attr_reader :width
+
+	def initialize game
+		@game = game
+		@x = 20
+		@y = 20
+
+		@deaths = 0
+		@font_size = 25
+	end
+
+	def update
+		string_value = ("%05d" % (@deaths * 10)).to_s
+		@image = Gosu::Image.from_text @game.window, string_value, Gosu.default_font_name, @font_size
+		@width = @image.width
+	end
+
+	def draw
+		@image.draw @x, @y, 1
 	end
 
 end
