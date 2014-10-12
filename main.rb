@@ -102,6 +102,7 @@ class Bullet < ObjectOnWindow
 		@x = x
 		@y = y
 		@alive = true
+		@sample = Gosu::Sample.new(@game.window, "bullet.mp3").play
 	end
 
 	def update
