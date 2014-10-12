@@ -21,9 +21,7 @@ class Game
 		@score.update
 
 		# generate some enemies
-		if Gosu.milliseconds % 25 == 0
-			@enemies.push(Enemy.new(self))
-		end
+		@enemies.push(Enemy.new(self)) if Gosu.milliseconds % 5 == 0
 
 		@enemies.each do |enemy|
 			if Gosu.distance(@player.x, @player.y, enemy.x, enemy.y) <= 50 and @player.alive == true
@@ -39,7 +37,7 @@ class Game
 		end
 
 		if @window.button_down?(Gosu::KbSpace) and @player.alive == true
-			@bullets.push(Bullet.new(self, 0, @player.y))
+			@bullets.push(Bullet.new(self, 0, @player.y + @player.height/2))
 		end
 
 		@bullets.each do |bullet|
@@ -78,12 +76,14 @@ end
 
 class Player < ObjectOnWindow
 	attr_accessor :x, :y, :game, :alive
+	attr_reader :height
 
 	def initialize game
 		@game = game
 
 		@image = Gosu::Image.new(@game.window, "assets/player_image.png", false)
 		
+		@height = @image.height
 		@x = 0
 		@y = (@game.window.height/2 - @image.height/2) + 10
 
@@ -96,7 +96,7 @@ class Player < ObjectOnWindow
 	end
 
 	def draw
-		@image.draw @x, @y, 1 if @alive
+		@image.draw @x, @y, 2 if @alive
 	end
 
 	def die!
@@ -136,26 +136,26 @@ class Enemy < ObjectOnWindow
 
 	def initialize game
 		@game = game
-		
-		# @image = Gosu::Image.from_text @game.window, "H", Gosu.default_font_name, 50
+
 		@image = Gosu::Image.new(@game.window, "assets/asteroid.png", false)
 
 		@x = @game.window.width
 		@y = Random.new.rand(0..(@game.window.height - @image.height))
+		@speed = Random.rand(5..20)
 
 		@alive = true
 	end
 	
 	def update
 		if @x > 0 and @alive == true
-			@x -= 10
+			@x -= @speed
 		else
 			@alive = false
 		end
 	end
 
 	def draw
-		@image.draw @x, @y, 1, -1
+		@image.draw @x, @y, 1
 	end
 
 	def hited!
