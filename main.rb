@@ -9,23 +9,17 @@ class Game
 		@bullets = []
 
 		@enemy = Enemy.new self
+
 	end
 
 	def update
 		@player.update
 		@enemy.update
 
-		# e_location = @enemy.where_am_i
-		# p_location = @player.where_am_i
-
-		# if (p_location[:x2].between?(e_location[:x1], e_location[:x2]) and 
-		# 	p_location[:y2].between?(e_location[:y1], e_location[:y2])) ||
-		# 	(p_location[:x2].between?(e_location[:x3], e_location[:x4]) and 
-		# 	p_location[:y2].between?(e_location[:y3], e_location[:y4]))
-
-		# 	@player.die!
-		# 	@game_over = Gosu::Image.from_text @window, "GAME OVER", Gosu.default_font_name, 200
-		# end
+		if Gosu.distance(@player.x, @player.y, @enemy.x, @enemy.y) <= 30 and @player.alive == true
+			@player.die!
+			@game_over = Gosu::Image.from_text @window, "GAME OVER", Gosu.default_font_name, 200
+		end
 
 		if @window.button_down?(Gosu::KbSpace)
 			@bullets.push(Bullet.new(self, 0, @player.y))
@@ -49,34 +43,12 @@ class Game
 
 		@enemy.draw
 
-		# @game_over.draw 0,0,0 unless @player.alive
+		@game_over.draw 0,0,0 unless @player.alive
 	end
 
 end
 
 class ObjectOnWindow
-
-	# Object representation
-	# x1/y1 ________ x2/y2
-	#      |        |
-	#      |        |
-	# x3/y3|________|x4/y4
-	
-	# return location of object FIX
-	def where_am_i
-		x1 = @x - @image.width
-		x2 = @x
-		x3 = @x - @image.width
-		x4 = @x
-		
-		y1 = @y - @image.height
-		y2 = @y - @image.height
-		y3 = @y
-		y4 = @y
-
-		return {x1: x1, x2: x2, x3: x3, x4: x4, y1: y1, y2: y2, y3: y3, y4: y4}
-	end
-
 end
 
 
@@ -91,11 +63,13 @@ class Player < ObjectOnWindow
 		@y = (@game.window.height/2 - @image.height/2) + 10
 
 		@alive = true
+
+		@sample = Gosu::Sample.new(@game.window, "you_lose_bitch.mp3")
 	end
 
 	def update
-		@y += 10 if @game.window.button_down? Gosu::KbDown and @y <= @game.window.height - @image.height
-		@y -= 10 if @game.window.button_down? Gosu::KbUp and @y > 0
+		@y += 2 if @game.window.button_down? Gosu::KbDown and @y <= @game.window.height - @image.height
+		@y -= 2 if @game.window.button_down? Gosu::KbUp and @y > 0
 	end
 
 	def draw
@@ -104,10 +78,11 @@ class Player < ObjectOnWindow
 
 	def die!
 		@alive = false
+		@sample.play
 	end
 end
 
-class Bullet
+class Bullet < ObjectOnWindow
 	attr_accessor :x, :y, :game, :live
 
 	def initialize game, x, y
@@ -137,7 +112,7 @@ class Enemy < ObjectOnWindow
 	def initialize game
 		@game = game
 		
-		@image = Gosu::Image.from_text @game.window, "E", Gosu.default_font_name, 50
+		@image = Gosu::Image.from_text @game.window, "H", Gosu.default_font_name, 50
 		
 		@x = @game.window.width
 		@y = Random.new.rand(0..(@game.window.height - @image.height))
@@ -147,7 +122,7 @@ class Enemy < ObjectOnWindow
 	
 	def update
 		if @x > 0 and @live == true
-			@x -= 1
+			@x -= 10
 		else
 			@live = false
 		end
@@ -158,7 +133,6 @@ class Enemy < ObjectOnWindow
 	end
 
 	def hited!
-		# puts "ATINGIDO"
 		@live = false
 	end
 
