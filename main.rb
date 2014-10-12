@@ -10,7 +10,7 @@ class Game
 
 		
 		@enemies = []
-		@music = Gosu::Song.new(@window, "bullet_game_1.mp3").play(true)
+		@music = Gosu::Song.new(@window, "assets/bullet_game_1.mp3").play(true)
 
 		@score = Score.new(self)
 	end
@@ -82,7 +82,7 @@ class Player < ObjectOnWindow
 	def initialize game
 		@game = game
 
-		@image = Gosu::Image.new(@game.window, "player_image.png", false)
+		@image = Gosu::Image.new(@game.window, "assets/player_image.png", false)
 		
 		@x = 0
 		@y = (@game.window.height/2 - @image.height/2) + 10
@@ -101,8 +101,8 @@ class Player < ObjectOnWindow
 
 	def die!
 		@alive = false
-		Gosu::Sample.new(@game.window, "player_die.wav").play
-		Gosu::Sample.new(@game.window, "you_lose_bitch.mp3").play
+		Gosu::Sample.new(@game.window, "assets/player_die.wav").play
+		Gosu::Sample.new(@game.window, "assets/you_lose_bitch.mp3").play
 	end
 end
 
@@ -111,11 +111,11 @@ class Bullet < ObjectOnWindow
 
 	def initialize game, x, y
 		@game = game
-		@image = Gosu::Image.new(@game.window, "bullet.png", false)
+		@image = Gosu::Image.new(@game.window, "assets/bullet.png", false)
 		@x = x
 		@y = y
 		@alive = true
-		Gosu::Sample.new(@game.window, "bullet.mp3").play
+		Gosu::Sample.new(@game.window, "assets/bullet.mp3").play
 	end
 
 	def update
@@ -138,7 +138,7 @@ class Enemy < ObjectOnWindow
 		@game = game
 		
 		# @image = Gosu::Image.from_text @game.window, "H", Gosu.default_font_name, 50
-		@image = Gosu::Image.new(@game.window, "asteroid.png", false)
+		@image = Gosu::Image.new(@game.window, "assets/asteroid.png", false)
 
 		@x = @game.window.width
 		@y = Random.new.rand(0..(@game.window.height - @image.height))
@@ -160,7 +160,7 @@ class Enemy < ObjectOnWindow
 
 	def hited!
 		@alive = false
-		Gosu::Sample.new(@game.window, "enemy_die_1.mp3").play
+		Gosu::Sample.new(@game.window, "assets/enemy_die_1.mp3").play
 	end
 
 end
@@ -194,7 +194,7 @@ class Window < Gosu::Window
 	def initialize width = 1200, height = 600, fullscreen = false
 		super
 		@game = Game.new self
-		@background = Gosu::Image.new(@game.window, "background.png", false)
+		@background = Gosu::Image.new(@game.window, "assets/background.png", false)
 	end
 
 	def update
