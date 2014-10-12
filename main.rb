@@ -111,7 +111,7 @@ class Bullet < ObjectOnWindow
 
 	def initialize game, x, y
 		@game = game
-		@image = Gosu::Image.from_text @game.window, ">", Gosu.default_font_name, 30
+		@image = Gosu::Image.new(@game.window, "bullet.png", false)
 		@x = x
 		@y = y
 		@alive = true
