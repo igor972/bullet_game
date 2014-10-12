@@ -26,7 +26,7 @@ class Game
 		end
 
 		@enemies.each do |enemy|
-			if Gosu.distance(@player.x, @player.y, enemy.x, enemy.y) <= 30 and @player.alive == true
+			if Gosu.distance(@player.x, @player.y, enemy.x, enemy.y) <= 50 and @player.alive == true
 				@player.die!
 				@game_over = Gosu::Image.from_text @window, "GAME OVER", Gosu.default_font_name, 200
 				@score.x = @window.width/2 - 150
@@ -49,6 +49,7 @@ class Game
 				@enemies.each do |enemy|
 					if Gosu.distance(enemy.x, enemy.y, bullet.x, bullet.y) <= 30
 						enemy.hited!
+						bullet.alive = false
 						@score.deaths += 1
 					end
 				end
@@ -64,7 +65,7 @@ class Game
 		@bullets.each {|bullet| bullet.draw}
 		@score.draw
 
-		@game_over.draw 40, 0,0 unless @player.alive
+		@game_over.draw 40, 0,1 unless @player.alive
 
 		@enemies.each {|enemy| enemy.draw}
 	end
@@ -80,8 +81,9 @@ class Player < ObjectOnWindow
 
 	def initialize game
 		@game = game
-		@image = Gosu::Image.from_text @game.window, "E", Gosu.default_font_name, 50
 
+		@image = Gosu::Image.new(@game.window, "player_image.png", false)
+		
 		@x = 0
 		@y = (@game.window.height/2 - @image.height/2) + 10
 
@@ -94,7 +96,7 @@ class Player < ObjectOnWindow
 	end
 
 	def draw
-		@image.draw @x, @y, 0 if @alive
+		@image.draw @x, @y, 1 if @alive
 	end
 
 	def die!
@@ -125,7 +127,7 @@ class Bullet < ObjectOnWindow
 	end
 
 	def draw
-		@image.draw @x, @y, 0 unless @alive == false
+		@image.draw @x, @y, 1 unless @alive == false
 	end
 end
 
@@ -152,7 +154,7 @@ class Enemy < ObjectOnWindow
 	end
 
 	def draw
-		@image.draw @x, @y, 0, -1
+		@image.draw @x, @y, 1, -1
 	end
 
 	def hited!
@@ -191,6 +193,7 @@ class Window < Gosu::Window
 	def initialize width = 1200, height = 600, fullscreen = false
 		super
 		@game = Game.new self
+		@background = Gosu::Image.new(@game.window, "background.png", false)
 	end
 
 	def update
@@ -199,6 +202,7 @@ class Window < Gosu::Window
 
 	def draw
 		@game.draw
+		@background.draw 0, 0, 0
 	end
 end
 
