@@ -9,7 +9,7 @@ class Game
 		@bullets = []
 
 		@enemy = Enemy.new self
-
+		@music = Gosu::Song.new(@window, "bullet_game_1.mp3").play(true)
 	end
 
 	def update
