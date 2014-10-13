@@ -10,7 +10,6 @@ class Game
 
 		
 		@enemies = []
-		@music = Gosu::Song.new(@window, "assets/bullet_game_1.mp3").play(true)
 
 		@score = Score.new(self)
 	end
@@ -103,6 +102,7 @@ class Player < ObjectOnWindow
 		@alive = false
 		Gosu::Sample.new(@game.window, "assets/player_die.wav").play
 		Gosu::Sample.new(@game.window, "assets/you_lose_bitch.mp3").play
+		$game_state = :new
 	end
 end
 
@@ -191,19 +191,56 @@ class Score
 end
 
 class Window < Gosu::Window
+	
+	# Game State :new, ,:playing, :pause
+	$game_state
+
 	def initialize width = 1200, height = 600, fullscreen = false
 		super
-		@game = Game.new self
-		@background = Gosu::Image.new(@game.window, "assets/background.png", false)
+		@background = Gosu::Image.new(self, "assets/background.png", false)
+		@music = Gosu::Song.new(self, "assets/bullet_game_1.mp3")
+		
+		@initial_message = Gosu::Image.from_text(self, "Press Enter to play/restart!", Gosu.default_font_name, 50)
+		$game_state = :new
+	end
+
+	def button_down(id)
+		if id == Gosu::KbReturn
+			game_new
+		end
+
+		if id == Gosu::KbP
+			game_pause
+		end
 	end
 
 	def update
-		@game.update
+		@game.update if $game_state == :playing
 	end
 
 	def draw
-		@game.draw
+		@game.draw if $game_state == :playing or $game_state == :pause
 		@background.draw 0, 0, 0
+		if $game_state == :new
+			@initial_message.draw (self.width/2 - @initial_message.width/2), (self.height/2 - @initial_message.height/2), 2, 1, 1, Gosu::Color.argb(0xffff0000)
+		end
+	end
+
+	def game_pause
+		case($game_state)
+		when :playing
+			$game_state = :pause
+			@music.pause
+		when :pause
+			$game_state = :playing
+			@music.play(true)
+		end
+	end
+
+	def game_new
+		@game = Game.new self
+		@music.play(true)
+		$game_state = :playing
 	end
 end
 
