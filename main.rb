@@ -7,7 +7,6 @@ class Game
 		@window = window
 		@player = Player.new self
 		@bullets = []
-
 		
 		@enemies = []
 
@@ -15,6 +14,7 @@ class Game
 	end
 
 	def update
+
 		@player.update
 		@enemies.each {|enemy| enemy.update}
 		@score.update
@@ -35,7 +35,7 @@ class Game
 			@enemies.delete(enemy) if enemy.alive == false
 		end
 
-		if @window.button_down?(Gosu::KbSpace) and @player.alive == true
+		if @window.button_down?(Gosu::KbSpace) and @player.alive == true and (@bullets.length < 5)
 			@bullets.push(Bullet.new(self, 0, @player.y + @player.height/2))
 		end
 
